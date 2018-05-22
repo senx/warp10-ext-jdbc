@@ -1,0 +1,14 @@
+[conf]
+jdbc.driver.postgres = org.postgresql.Driver
+
+[WarpScript]
+// @see https://github.com/timescale/timescaledb-docker
+// @see https://github.com/timescale/timescaledb/blob/master/README.md
+'jdbc:postgresql://localhost:5432/'
+{
+'user' 'postgres'
+}
+// We need to extract the epoch timestamp from the timestamp column
+'select 1000000*extract(epoch from time) as ts,humidity,temperature,location from conditions;'
+[ 'ts' 'temperature' 'humidity' ]
+SQLEXEC
