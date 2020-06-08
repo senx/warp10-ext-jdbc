@@ -133,6 +133,20 @@ idea {
   }
 }
 
+jar {
+  from('src/main/warpscript') {
+    //
+    // Only consider macros which are in our namespace
+    //
+    include project.ext.group + '/' + project.ext.name + '/*.mc2'
+    include project.ext.group + '/' + project.ext.name + '/**/*.mc2'
+  }
+  from('.') {
+    include 'README.md'
+    include 'io.warp10-warp10-ext-jdbc.conf'
+  }
+}
+
 shadowJar {
   classifier = ''
 
@@ -147,8 +161,14 @@ shadowJar {
    //
    // Only consider macros which are in our namespace
    //
-   include 'io.warp10/warp10-ext-jdbc/*.mc2'
-   include 'io.warp10/warp10-ext-jdbc/**/*.mc2'
+   include project.ext.group + '/' + project.ext.name + '/*.mc2'
+   include project.ext.group + '/' + project.ext.name + '/**/*.mc2'
+ //  include 'io.warp10/warp10-ext-jdbc/*.mc2'
+ //  include 'io.warp10/warp10-ext-jdbc/**/*.mc2'
+  }
+  from('.') {
+    include 'README.md'
+    include 'io.warp10-warp10-ext-jdbc.conf'
   }
 }
 
