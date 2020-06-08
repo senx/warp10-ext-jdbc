@@ -1,5 +1,5 @@
 //
-//   Copyright 2018  SenX S.A.S.
+//   Copyright 2018-2020  SenX S.A.S.
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -55,17 +55,23 @@ public class SQLEXEC extends NamedWarpScriptFunction implements WarpScriptStackF
     Object top = stack.pop();
     
     if (!(top instanceof List)) {
-      throw new WarpScriptException(getName()+ " expected a list of value fields on top of the stack.");
+      throw new WarpScriptException(getName()+ " expected a list of value fields.");
     }
     
     List<Object> values = (List<Object>) top;
     
-    String sql = stack.pop().toString();
+    top = stack.pop();
+        
+    if (!(top instanceof String)) {
+      throw new WarpScriptException(getName() + " expects a SQL statement.");
+    }
+    
+    String sql = (String) top;
     
     top = stack.pop();
     
     if (!(top instanceof Map)) {
-      throw new WarpScriptException(getName() + " expected a property map below the SQL statement.");
+      throw new WarpScriptException(getName() + " expected a property map before the SQL statement.");
     }
     
     Properties props = new Properties();
@@ -108,11 +114,7 @@ public class SQLEXEC extends NamedWarpScriptFunction implements WarpScriptStackF
       if (-1 == tsidx) {
         throw new WarpScriptException(getName() + " did not find timestamp column '" + values.get(0) + "'.");
       }
-      
-      //if (rsmd.getColumnType(tsidx) != Types.BIGINT) {
-      //  throw new WarpScriptException(getName() + " expects timestamp column to be a BIGINT.");
-      //}
-      
+            
       Map<Metadata,GeoTimeSerie> gts = new HashMap<Metadata, GeoTimeSerie>();
       
       Map<String,String> labels = new HashMap<String,String>();
@@ -165,7 +167,7 @@ public class SQLEXEC extends NamedWarpScriptFunction implements WarpScriptStackF
       
       stack.push(results);
     } catch (SQLException sqle) {
-      throw new WarpScriptException(getName() + " caught an SQL Exception.", sqle);
+      throw new WarpScriptException(getName() + " caught a SQL Exception.", sqle);
     } finally {
       if (null != rs) {
         try { rs.close(); } catch (SQLException sqle) {}
@@ -177,7 +179,7 @@ public class SQLEXEC extends NamedWarpScriptFunction implements WarpScriptStackF
         try {
           conn.close();
         } catch (SQLException sqle) {
-          throw new WarpScriptException(getName() + " caught an SQL Exception while closing the connection.", sqle);
+          throw new WarpScriptException(getName() + " caught a SQL Exception while closing the connection.", sqle);
         }
       }
     }
