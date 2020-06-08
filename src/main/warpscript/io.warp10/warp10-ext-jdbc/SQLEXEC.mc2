@@ -1,5 +1,5 @@
 //
-//   Copyright 2019  SenX S.A.S.
+//   Copyright 2019-2020  SenX S.A.S.
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -18,32 +18,41 @@
   'name' 'SQLEXEC'
   'desc'
     <'
-The `SQLEXEC` function executes a SQL statement against a JDBC compatible RDBMS and generates Geo Time Series™ from the result.
+The `SQLEXEC` function executes a SQL statement against a JDBC compatible RDBMS and generates Geo Time Series from the resultinf rows.
 
-The JDBC drivers which can be used are those whose `Driver` classes have been added to the Warp 10™ configuration using a `jdbc.driver.` prefixed configuration key, *e.g.* for [PostgreSQL]() the following declaration should appear:
+The JDBC drivers which can be used are those whose `Driver` classes have been added to the Warp 10 configuration using a `jdbc.driver.` prefixed configuration key, *e.g.* for [PostgreSQL](https://www.postgresql.org/) the following declaration should appear:
 
 ```
    jdbc.driver.postgres = org.postgresql.Driver
 ```
 
-with the `.jar` file containing the driver present in the classpath of the Warp 10™ instance.
+with the `.jar` file containing the driver present in the classpath of the Warp 10 instance, typically in the `lib` directory.
     '>
   'sig' [ [ [ 'fields:LIST<STRING>' 'sql:STRING' 'properties:MAP' 'url:STRING' ] [ 'lgts:LIST<GTS>' ] ] ] // Signature
   'params' {
-    'fields' 'List of columns names, the first one will be interpreted as the timestamp, the others as values, each one giving birth to a Geo Time Series™. All other columns will be interpreted as labels.'
+    'fields' 'List of columns names, the first one will be interpreted as the timestamp, the others as values, each one leading to a distinct Geo Time Series. All other columns will be interpreted as labels.'
     'sql' 'SQL statement to execute.'
-    'properties' 'Map of properties to pass on to the JDBC Driver.'
+    'properties' 'Map of properties to pass on to the JDBC Driver. For example `user` and `password`.'
     'url' 'JDBC URL of the DB to contact.'
   }
+  'ext' 'io.warp10.script.ext.jdbc.JDBCWarpScriptExtension'
   'conf' [ 'jdbc.driver.*' ]
+  'tags' [ 'ext' 'jdbc' ]
   'examples' [
 <'
+//
 // Reading Time Series from TimeScaleDB
 // @see https://github.com/timescale/timescaledb-docker
 // @see https://github.com/timescale/timescaledb/blob/master/README.md
+//
+// @see https://jdbc.postgresql.org/
+//
+
+// DB URL
 'jdbc:postgresql://localhost:5432/'
 {
   'user' 'postgres'
+  'password' 'foo'
 }
 // We need to extract the epoch timestamp from the timestamp column
 'select 1000000*extract(epoch from time) as ts,humidity,temperature,location from conditions;'
@@ -56,7 +65,7 @@ SQLEXEC
 <%
   !$info INFO
   SAVE 'context' STORE
-    SQLEXEC
+    'SQLEXEC' EVAL
   $context RESTORE
 %>
 'macro' STORE
