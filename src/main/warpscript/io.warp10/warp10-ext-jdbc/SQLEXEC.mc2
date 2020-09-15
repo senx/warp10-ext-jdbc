@@ -30,12 +30,14 @@ with the `.jar` file containing the driver present in the classpath of the Warp 
     '>
   'sig' [ 
     [ [ 'fields:LIST<STRING>' 'sql:STRING' 'properties:MAP' 'url:STRING' ] [ 'list:LIST' ] ] 
+    [ [ 'fields:LIST<STRING>' 'sql:STRING' 'batchValues:LIST' 'properties:MAP' 'url:STRING' ] [ 'list:LIST' ] ]
   ] // Signature
   'params' {
     'fields' 'List of columns names, the first one will be interpreted as the timestamp, the others as values, each one leading to a distinct Geo Time Series. All other columns will be interpreted as labels. In case this is NULL, no conversion to GTS is done and the result is either the raw LIST of LIST of result or the list of the number of updates.'
     'sql' 'SQL statement to execute.'
     'properties' 'Map of properties to pass on to the JDBC Driver. For example `user` and `password`.'
     'url' 'JDBC URL of the DB to contact.'
+    'batchValues' 'List of Lists of values to be used in the prepared statement.'
     'list' 'List of GTSs, rows or number of updates.'
   }
   'ext' 'io.warp10.script.ext.jdbc.JDBCWarpScriptExtension'
