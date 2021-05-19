@@ -1,5 +1,5 @@
 //
-//   Copyright 2019  SenX S.A.S.
+//   Copyright 2019-2020  SenX S.A.S.
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ def getVersionName(String revision) {
 
 project.ext.bintrayRepo = 'maven'
 project.ext.bintrayVcsUrl = 'https://github.com/senx/warp10-ext-jdbc'
-project.ext.bintrayLicenses = [ 'Apache 2.0' ]
+project.ext.bintrayLicenses = [ 'Apache-2.0' ]
 
 //
 // GnuPG configuration for signing module
@@ -133,6 +133,20 @@ idea {
   }
 }
 
+jar {
+  from('src/main/warpscript') {
+    //
+    // Only consider macros which are in our namespace
+    //
+    include project.ext.group + '/' + project.ext.name + '/*.mc2'
+    include project.ext.group + '/' + project.ext.name + '/**/*.mc2'
+  }
+  from('.') {
+    include 'README.md'
+    include 'io.warp10-warp10-ext-jdbc.conf'
+  }
+}
+
 shadowJar {
   classifier = ''
 
@@ -140,15 +154,21 @@ shadowJar {
    attributes('WarpFleet-Description': 'WarpScript JDBC Extension')
    attributes('WarpFleet-Group': 'io.warp10')
    attributes('WarpFleet-Artifact': 'warp10-ext-jdbc')
-   attributes('WarpFleet-Version': '0.0.0')
+   attributes('WarpFleet-Version': project.ext.version)
   }
 
   from('src/main/warpscript') {
    //
    // Only consider macros which are in our namespace
    //
-   include 'io.warp10/warp10-ext-jdbc/*.mc2'
-   include 'io.warp10/warp10-ext-jdbc/**/*.mc2'
+   include project.ext.group + '/' + project.ext.name + '/*.mc2'
+   include project.ext.group + '/' + project.ext.name + '/**/*.mc2'
+ //  include 'io.warp10/warp10-ext-jdbc/*.mc2'
+ //  include 'io.warp10/warp10-ext-jdbc/**/*.mc2'
+  }
+  from('.') {
+    include 'README.md'
+    include 'io.warp10-warp10-ext-jdbc.conf'
   }
 }
 
