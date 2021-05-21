@@ -1,5 +1,5 @@
 //
-//   Copyright 2018-2020  SenX S.A.S.
+//   Copyright 2018-2021  SenX S.A.S.
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -46,11 +46,6 @@ import java.util.TimeZone;
 
 /**
  * Executes an SQL statement and creates Geo Time Series with the results.
- *
- * @param url        URL to use to connect to the DB
- * @param properties Map of key/value with properties to pass to the driver
- * @param sql        SQL statement to execute
- * @param[TOP] List of timestamp + value fields, the others will be considered labels. The first field is the timestamp.
  */
 public class SQLEXEC extends NamedWarpScriptFunction implements WarpScriptStackFunction {
 
