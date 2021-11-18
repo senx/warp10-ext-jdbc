@@ -49,7 +49,7 @@ import java.util.TimeZone;
  */
 public class SQLEXEC extends NamedWarpScriptFunction implements WarpScriptStackFunction {
 
-  // Allows the convertion of SQL timestamps without TZ to consider them as being UTC instead of local TZ.
+  // Allows the conversion of SQL timestamps without TZ to consider them as being UTC instead of local TZ.
   // Not static because non-thread safe.
   private final Calendar gmtCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
