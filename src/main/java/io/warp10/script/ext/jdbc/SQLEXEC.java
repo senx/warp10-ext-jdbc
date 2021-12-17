@@ -23,6 +23,7 @@ import io.warp10.script.NamedWarpScriptFunction;
 import io.warp10.script.WarpScriptException;
 import io.warp10.script.WarpScriptStack;
 import io.warp10.script.WarpScriptStackFunction;
+import io.warp10.script.WarpScriptStack.Macro;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -59,11 +60,22 @@ public class SQLEXEC extends NamedWarpScriptFunction implements WarpScriptStackF
 
   @Override
   public Object apply(WarpScriptStack stack) throws WarpScriptException {
+    Object top = stack.peek();
+    
+    //
+    // Optional Macro to process timestamp column value
+    //
+    Macro timestampMacro = null;
+    if (top instanceof Macro) {
+      top = stack.pop();
+      timestampMacro = (Macro) top;
+    }
+
     //
     // List of column names for automatic GTS conversion
     //
-    Object top = stack.pop();
-
+    top = stack.pop();
+    
     if (null != top && !(top instanceof List)) {
       throw new WarpScriptException(getName() + " expected a list of value fields or NULL.");
     }
@@ -235,6 +247,12 @@ public class SQLEXEC extends NamedWarpScriptFunction implements WarpScriptStackF
                 o = sqlToWarpScript(tsType, rs, tsidx, gmtCalendar);
               } catch (WarpScriptException | SQLException e) {
                 throw new WarpScriptException(getName() + " is given an invalid column type for timestamp.", e);
+              }
+
+              if (null != timestampMacro) {
+                stack.push(o);
+                stack.exec(timestampMacro);
+                o = stack.pop();
               }
 
               if (!(o instanceof Number)) {
