@@ -1,5 +1,5 @@
 //
-//   Copyright 2018-2020  SenX S.A.S.
+//   Copyright 2018-2021  SenX S.A.S.
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import io.warp10.script.NamedWarpScriptFunction;
 import io.warp10.script.WarpScriptException;
 import io.warp10.script.WarpScriptStack;
 import io.warp10.script.WarpScriptStackFunction;
+import io.warp10.script.WarpScriptStack.Macro;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -46,15 +47,10 @@ import java.util.TimeZone;
 
 /**
  * Executes an SQL statement and creates Geo Time Series with the results.
- *
- * @param url        URL to use to connect to the DB
- * @param properties Map of key/value with properties to pass to the driver
- * @param sql        SQL statement to execute
- * @param[TOP] List of timestamp + value fields, the others will be considered labels. The first field is the timestamp.
  */
 public class SQLEXEC extends NamedWarpScriptFunction implements WarpScriptStackFunction {
 
-  // Allows the convertion of SQL timestamps without TZ to consider them as being UTC instead of local TZ.
+  // Allows the conversion of SQL timestamps without TZ to consider them as being UTC instead of local TZ.
   // Not static because non-thread safe.
   private final Calendar gmtCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
@@ -64,11 +60,22 @@ public class SQLEXEC extends NamedWarpScriptFunction implements WarpScriptStackF
 
   @Override
   public Object apply(WarpScriptStack stack) throws WarpScriptException {
+    Object top = stack.peek();
+    
+    //
+    // Optional Macro to process timestamp column value
+    //
+    Macro timestampMacro = null;
+    if (top instanceof Macro) {
+      top = stack.pop();
+      timestampMacro = (Macro) top;
+    }
+
     //
     // List of column names for automatic GTS conversion
     //
-    Object top = stack.pop();
-
+    top = stack.pop();
+    
     if (null != top && !(top instanceof List)) {
       throw new WarpScriptException(getName() + " expected a list of value fields or NULL.");
     }
@@ -240,6 +247,12 @@ public class SQLEXEC extends NamedWarpScriptFunction implements WarpScriptStackF
                 o = sqlToWarpScript(tsType, rs, tsidx, gmtCalendar);
               } catch (WarpScriptException | SQLException e) {
                 throw new WarpScriptException(getName() + " is given an invalid column type for timestamp.", e);
+              }
+
+              if (null != timestampMacro) {
+                stack.push(o);
+                stack.exec(timestampMacro);
+                o = stack.pop();
               }
 
               if (!(o instanceof Number)) {
